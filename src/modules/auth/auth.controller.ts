@@ -1,14 +1,39 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import { AuthService } from './auth.service';
-import { Controller, UseGuards, Get, Req, Res } from '@nestjs/common';
+import {
+  Controller,
+  UseGuards,
+  Get,
+  Req,
+  Res,
+  Post,
+  Body,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { User } from '@sentry/node';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Post('login')
+  async localLogin(@Req() req, @Res() res, @Body() loginDto: any) {
+    // validate to see if user exist
+    const isUserValid: User = await this.authService.isValidUser(loginDto);
+
+    if (!isUserValid) return res.status(404);
+
+    const tokens = this.authService.generateJwtToken(
+      isUserValid.email,
+      isUserValid._id,
+    );
+
+    return res.status(200).json({ message: 'success', tokens });
+  }
+
   @Get('google')
   @UseGuards(AuthGuard('google'))
-  async googleLogin(@Req() req): Promise<void> {}
+  async googleLogin(): Promise<void> {}
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
@@ -17,8 +42,7 @@ export class AuthController {
     const { user } = req;
     const userDetails = await this.authService.handleOAuthLogin(user);
     return res.send(
-      `
-      <script>
+      `<script>
         window.opener.postMessage(${JSON.stringify({
           access_token: userDetails.accessToken,
           email: userDetails.user.email,

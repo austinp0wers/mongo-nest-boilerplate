@@ -8,7 +8,12 @@ export class UserServiceImpl implements UserService {
     @InjectModel(User.name) private readonly userModel: Model<User>,
   ) {}
   async findUserBy(type: string, field: string) {
-    if (type === 'email') return await this.userModel.findOne({ email: field });
+    if (type === 'email')
+      return await this.userModel.findOne({
+        email: field,
+        visible: true,
+        deletedAt: null,
+      });
   }
   async findUsers() {
     throw new Error('Method not implemented.');
@@ -17,6 +22,8 @@ export class UserServiceImpl implements UserService {
     return await new this.userModel({
       email: user.email,
       name: user.name,
+      phoneNumber: user.phoneNumber,
+      password: user.password,
       provider: user.provider,
     }).save();
   }
