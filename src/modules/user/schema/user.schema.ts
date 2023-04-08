@@ -15,7 +15,6 @@ export class User extends Document {
   @Prop({
     unique: true,
     trim: true,
-    minLength: 8,
     maxLength: 128,
   })
   phoneNumber: string;
@@ -63,14 +62,14 @@ export class User extends Document {
   })
   visible: boolean;
 
-  async savePasswordHash() {
-    this.password = await bcrypt.hash(this.password, 10);
-  }
+  // async savePasswordHash() {
+  //   this.password = await bcrypt.hash(this.password, 10);
+  // }
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
 UserSchema.pre<User>('save', async function (next) {
-  await this.savePasswordHash();
+  // await this.savePasswordHash();
   next();
 });

@@ -19,9 +19,13 @@ export class AuthController {
   @Post('login')
   async localLogin(@Req() req, @Res() res, @Body() loginDto: any) {
     // validate to see if user exist
-    const isUserValid: User = await this.authService.isValidUser(loginDto);
+    const isUserValid: User | null = await this.authService.isValidUser(
+      loginDto,
+    );
 
-    if (!isUserValid) return res.status(404);
+    if (!isUserValid) {
+      return res.status(404).json({ message: 'not found' });
+    }
 
     const tokens = this.authService.generateJwtToken(
       isUserValid.email,
@@ -31,9 +35,14 @@ export class AuthController {
     return res.status(200).json({ message: 'success', tokens });
   }
 
-  @Get('google')
-  @UseGuards(AuthGuard('google'))
-  async googleLogin(): Promise<void> {}
+  @Post('sign-up')
+  public async registerUser(@Req() req, @Res() res, @Body() signUpDto) {
+    const user = await this.authService.isValidUser(signUpDto.email);
+
+    if (user) {
+      return res.status(409).json({ message: 'user conflict' });
+    }
+  }
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
@@ -54,6 +63,10 @@ export class AuthController {
     `,
     );
   }
+
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleLogin(): Promise<void> {}
 
   // Do the same for Naver and KakaoTalk.
 }

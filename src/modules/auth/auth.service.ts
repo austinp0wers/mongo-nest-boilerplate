@@ -24,7 +24,6 @@ export class AuthService {
         provider: user.provider,
       });
     }
-
     const { accessToken } = this.generateJwtToken(user.email, existingUser._id);
     return { user: existingUser, accessToken };
   }
@@ -41,8 +40,8 @@ export class AuthService {
       'email',
       loginDto.email,
     );
+    console.log('');
     if (!userDetail) return null;
-
     const isCorrectPassword = this.cryptoService.compareHash(
       userDetail.password,
       loginDto.password,
