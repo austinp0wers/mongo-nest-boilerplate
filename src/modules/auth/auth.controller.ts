@@ -1,3 +1,4 @@
+import { UserService } from './../user/service/user.service.interface';
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { AuthService } from './auth.service';
 import {
@@ -8,13 +9,17 @@ import {
   Res,
   Post,
   Body,
+  Inject,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from '@sentry/node';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    @Inject('UserService') private readonly userService: UserService,
+  ) {}
 
   @Post('login')
   async localLogin(@Req() req, @Res() res, @Body() loginDto: any) {
@@ -37,11 +42,17 @@ export class AuthController {
 
   @Post('sign-up')
   public async registerUser(@Req() req, @Res() res, @Body() signUpDto) {
-    const user = await this.authService.isValidUser(signUpDto.email);
+    const existingUser = await this.authService.isValidUser(signUpDto.email);
 
-    if (user) {
+    if (existingUser) {
       return res.status(409).json({ message: 'user conflict' });
     }
+
+    const savedUser = await this.userService.createUser(signUpDto);
+    if (!savedUser) {
+      return res.status(409).json({ message: 'user save failed' });
+    }
+    return res.status(200).json({ message: 'user saved successful' });
   }
 
   @Get('google/callback')

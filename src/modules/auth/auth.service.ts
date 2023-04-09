@@ -32,7 +32,7 @@ export class AuthService {
     const payload = { email, clientId };
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken, expiresIn: process.env.JWT_EXPIRES_IN };
   }
 
   async isValidUser(loginDto): Promise<User | null> {
@@ -40,8 +40,9 @@ export class AuthService {
       'email',
       loginDto.email,
     );
-    console.log('');
+
     if (!userDetail) return null;
+
     const isCorrectPassword = this.cryptoService.compareHash(
       userDetail.password,
       loginDto.password,
@@ -50,5 +51,4 @@ export class AuthService {
     if (!isCorrectPassword) return null;
     return userDetail;
   }
-  // ... other authentication and authorization related methods
 }

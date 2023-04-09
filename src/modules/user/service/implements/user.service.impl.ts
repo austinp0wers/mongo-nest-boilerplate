@@ -25,9 +25,9 @@ export class UserServiceImpl implements UserService {
       return await new this.userModel({
         email: user.email,
         name: user.name,
-        phoneNumber: user.phoneNumber ? user.phoneNumber : '',
+        phone: user.phone ? user.phone : String(Date.now()),
         password: user.password ? user.password : '',
-        provider: user.provider,
+        provider: user.provider ? user.provider : 'onsite',
       }).save();
     } catch (err) {
       console.log('err', err);

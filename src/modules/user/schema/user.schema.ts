@@ -17,7 +17,7 @@ export class User extends Document {
     trim: true,
     maxLength: 128,
   })
-  phoneNumber: string;
+  phone: string;
 
   @Prop({
     maxLength: 512,
@@ -61,15 +61,19 @@ export class User extends Document {
     default: true,
   })
   visible: boolean;
-
-  // async savePasswordHash() {
-  //   this.password = await bcrypt.hash(this.password, 10);
-  // }
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
 UserSchema.pre<User>('save', async function (next) {
-  // await this.savePasswordHash();
-  next();
+  if (!this.isModified('password')) {
+    return next();
+  }
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
