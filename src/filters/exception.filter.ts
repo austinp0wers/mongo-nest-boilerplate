@@ -6,11 +6,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
-import * as slackNotify from 'slack-notify';
 import { RateLimiterMemory } from 'rate-limiter-flexible';
-const slackURL = process.env.SLACK_DSN;
-console.log('slackURL', slackURL);
-// const slack = slackNotify.SlackNotifyFactory(slackURL);
 
 const rateLimiter = new RateLimiterMemory({
   points: 5,
