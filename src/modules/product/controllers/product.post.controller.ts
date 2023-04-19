@@ -12,7 +12,6 @@ export class ProductPostController {
 
   @Post()
   public async addProduct(@Req() req, @Res() res, @Body() productSaveDto: any) {
-    // escape unnecessary characters
     const description = this.stringHelperService.escapeSpecialCharacters(
       productSaveDto.description,
     );
@@ -30,6 +29,7 @@ export class ProductPostController {
       seller: req.clientId,
     };
     await this.productCreateService.saveProduct(saveProductDto);
+
     return res.json({
       code: 200,
     });

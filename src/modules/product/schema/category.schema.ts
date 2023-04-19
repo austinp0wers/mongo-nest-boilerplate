@@ -6,6 +6,9 @@ export class Category extends Document {
   @Prop({ required: true })
   name: string;
 
+  @Prop({ type: Number })
+  level: number;
+
   @Prop({ type: Date, default: Date.now })
   createdAt: Date;
 
